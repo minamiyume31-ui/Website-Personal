@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prakiraan Cuaca Kemayoran (BMKG API)</title>
+  <style>
+    body { 
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #57c1eb 0%, #246fa8 100%); /* biru langit gradient */
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      color: #f8f8f8;
+    }
+    .container {
+      max-width: 520px;
+      margin: 40px auto;
+      background: rgba(255,255,255,0.12);
+      border-radius: 15px;
+      box-shadow: 0 12px 24px rgba(30,60,100,.14);
+      padding: 24px 24px 12px 24px;
+    }
+    h2 {
+      color: #fff;
+      letter-spacing: 1.5px;
+      margin-top: 0;
+    }
+    .info {
+      background: rgba(0,0,0,0.11);
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 18px;
+      font-size: 17px;
+      color: #eaf8ff;
+    }
+    .cuaca-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .cuaca-list li {
+      margin-bottom: 17px;
+      background: rgba(255,255,255,0.18);
+      padding: 12px 10px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      transition: background .2s;
+      color: #f5faff;
+      box-shadow: 0 2px 8px rgba(48,98,180,0.09);
+    }
+    .cuaca-list li:hover {
+      background: rgba(255,255,255,0.25);
+    }
+    .cuaca-img {
+      flex-shrink: 0;
+      margin-right: 12px;
+      border-radius: 50%;
+      border: 2px solid #57c1eb;
+      background: #fff;
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+    }
+    .cuaca-details {
+      display: flex;
+      flex-direction: column;
+      row-gap: 5px;
+    }
+    .datetime {
+      font-size: 15px;
+      font-weight: bold;
+      color: #eaf8ff;
+      margin-bottom: 3px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Prakiraan Cuaca Kemayoran</h2>
+    <div class="info" id="info"></div>
+    <ul class="cuaca-list" id="cuaca"></ul>
+  </div>
+
+  <script>
+    const API_URL = 'https://api.bmkg.go.id/publik/prakiraan-cuaca?adm4=31.71.03.1001';
+
+    fetch(API_URL)
+      .then(res => res.json())
+      .then(data => {
+        const lokasi = data.lokasi;
+        document.getElementById('info').innerText =
+          `Lokasi: ${lokasi.desa}, ${lokasi.kecamatan}, ${lokasi.kotkab}, ${lokasi.provinsi}`;
+
+        let cuacaItems = (data.data && data.data[0].cuaca && data.data[0].cuaca[0]) ? data.data[0].cuaca[0] : [];
+        let cuacaList = '';
+
+        cuacaItems.forEach(item => {
+          cuacaList += `
+            <li>
+              <img class="cuaca-img" src="${item.image}" alt="${item.weather_desc}" />
+              <div class="cuaca-details">
+                <div class="datetime">${item.local_datetime.split(' ')[0]} | ${item.weather_desc}</div>
+                <div>Suhu: <strong>${item.t}°C</strong> &nbsp;| Hujan: <strong>${item.tp} mm</strong></div>
+                <div>Angin: <strong>${item.ws} m/s (${item.wd})</strong></div>
+                <div>Kelembapan: <strong>${item.hu}%</strong></div>
+                 </div>
+            </li>
+          `;
+        });
+
+        document.getElementById('cuaca').innerHTML = cuacaList;
+      });
+  </script>
+</body>
+</html>
